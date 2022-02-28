@@ -9,5 +9,3 @@
 
 
 * The original code can be found [here](https://eeweb.engineering.nyu.edu/iselesni/eye-movement/).
-
-License: I do not know which license the source code uses. Thus, even this project is under MIT license, certain permissions are not guaranteed.
