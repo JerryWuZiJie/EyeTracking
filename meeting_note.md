@@ -8,3 +8,6 @@
     - [ ] TODO: smooth pursuit eye movement
     - [ ] TODO: Anti saccades
 - [ ] format [source code](https://eeweb.engineering.nyu.edu/iselesni/eye-movement/): add comments, remove unused codes, ...
+
+2/28 MeetingNote
+- Getting some anti-saccades data
