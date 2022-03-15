@@ -170,15 +170,16 @@ paramScale_A.set(10.0)
 whitespace2 = tk.Label(rightFrame, text=' ')
 whitespace2.grid(row=19, column=0)
 
-exit_button = tk.Button(rightFrame, text='Exit', width=20,
+# exit button
+button_exit = tk.Button(rightFrame, text='Exit', width=20,
                         height=2, command=root.quit)
-exit_button.grid(row=20, column=1, columnspan=3)
+button_exit.grid(row=20, column=1, columnspan=3)
 
 # footnote
-status = tk.Label(root, text='"A parametric model for saccadic eye movement". '
+label_reference = tk.Label(root, text='"A parametric model for saccadic eye movement". '
                   'IEEE Signal Processing in Medicine and Biology Symposium '
                   '(SPMB), December 2016. DOI: 10.1109/SPMB.2016.7846860', bd=1,
                   relief='sunken', anchor='w', wraplength=600, justify=tk.LEFT)
-status.pack(side='bottom', fill='x')
+label_reference.pack(side='bottom', fill='x')
 
 root.mainloop()
