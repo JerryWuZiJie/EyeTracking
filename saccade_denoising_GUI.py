@@ -363,10 +363,17 @@ checkbox_clean_data.grid(row=8, column=1, columnspan=3)
 label_dp = tk.Label(rightFrame, text='Denoising Parameters:', font=FONT1)
 label_dp.grid(row=9, column=1, columnspan=4, sticky='w')
 # cost function
-photo = Image.open('cost.png')
-cost_function = ImageTk.PhotoImage(photo)
-label_cost = tk.Label(rightFrame, image=cost_function)
-label_cost.grid(row=10, columnspan=5)
+label_cost = tk.Label(rightFrame)
+label_cost.grid(row=10, column=0, columnspan=2)
+formula = matplotlib.figure.Figure(figsize=(3, 0.5))
+ax_f = formula.add_subplot(111)
+ax_f.set_axis_off()
+ax_f.text(
+    -0.1, 0.3, "$x=\\arg\ \min_x \{0.5 \Vert y-x \Vert _2^2 + \
+    \\alpha \Vert D_1 x \Vert_1 + \\beta\Vert D_3 x\Vert_1\}$", fontsize=9)
+canvas.draw()
+canvas_f = FigureCanvasTkAgg(formula, master=label_cost)
+canvas_f.get_tk_widget().pack(side="left", fill="x", expand=True)
 # alpha
 paramLabel_alpha = tk.Label(rightFrame, text=u'\u03b1', font=FONT2)
 paramLabel_alpha.grid(row=11, column=0, sticky='e')

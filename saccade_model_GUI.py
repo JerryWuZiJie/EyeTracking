@@ -117,19 +117,27 @@ canvas_widget.pack(fill=tk.BOTH, expand=1)
 ### Right frame ###
 # formulae
 label_smf = tk.Label(rightFrame, text='Saccade model formula:', font=FONT1)
-label_smf.grid(row=0, column=0, columnspan=5)
+label_smf.grid(row=0, column=0, columnspan=2)
 
-# s(t) formula
-photo_s = Image.open('fun_s.png')
-fun_s = ImageTk.PhotoImage(photo_s)
-label_fun_s = tk.Label(rightFrame, image=fun_s)
-label_fun_s.grid(row=1, columnspan=5)
-
-# f(t) formula
-photo_f = Image.open('fun_f.png')
-fun_f = ImageTk.PhotoImage(photo_f)
-label_fun_f = tk.Label(rightFrame, image=fun_f)
-label_fun_f.grid(row=2, columnspan=5)
+# s(t) and f(t) formula
+label_cost = tk.Label(rightFrame)
+label_cost.grid(row=1, column=0, columnspan=2)
+formula = matplotlib.figure.Figure(figsize=(3, 1))
+ax_f = formula.add_subplot(111)
+ax_f.set_axis_off()
+# s(t)
+ax_f.text(
+    0, 0.8,
+    "$s(t)=cf(\eta t/c)-cf(\eta t/c)-A/c)$",
+    fontsize=13)
+# f(t)
+ax_f.text(
+    0, 0.1,
+    "$f(t) = \{^{t+0.25e^{-2t}, t\geq 0}_{0.25e^{2t},\ \ \ \ \ \ \ t \leq 0}$",
+    fontsize=18)
+canvas.draw()
+canvas_f = FigureCanvasTkAgg(formula, master=label_cost)
+canvas_f.get_tk_widget().pack(side="left", fill="x", expand=True)
 
 # whitespace between formulae and parameters
 white_space = tk.Label(rightFrame, text=' ')
@@ -177,9 +185,9 @@ button_exit.grid(row=20, column=1, columnspan=3)
 
 # footnote
 label_reference = tk.Label(root, text='"A parametric model for saccadic eye movement". '
-                  'IEEE Signal Processing in Medicine and Biology Symposium '
-                  '(SPMB), December 2016. DOI: 10.1109/SPMB.2016.7846860', bd=1,
-                  relief='sunken', anchor='w', wraplength=600, justify=tk.LEFT)
+                           'IEEE Signal Processing in Medicine and Biology Symposium '
+                           '(SPMB), December 2016. DOI: 10.1109/SPMB.2016.7846860', bd=1,
+                           relief='sunken', anchor='w', wraplength=600, justify=tk.LEFT)
 label_reference.pack(side='bottom', fill='x')
 
 root.mainloop()
