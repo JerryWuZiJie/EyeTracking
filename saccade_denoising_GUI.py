@@ -271,47 +271,6 @@ title = tk.Label(topFrame, text='Saccade Denoising Demo',
                  font=('times', 24, 'bold'))
 title.pack(side='top')
 
-# # intro string
-# intro_string = 'The peak velocity '+r'$\bf{V_p}$ ' \
-#     'and amplitude '+r'$\bf{A}$ '+'of the simulated saccades satisfy the relation ' \
-#     r'$V_p=\eta(1-e^{-A/c})$ '+'.\n' \
-#     'Fast, regular, or slow saccades can be simulated via tuning the parameters ' \
-#     r'$\bf{\eta}$ '+'and '+r'$\bf{c}$' + '.\n' \
-#     'The parameters '+r'$\bf{\alpha}$ ' \
-#     'and ' \
-#     + r'$\bf{\beta}$ ' \
-#     'control the denoising behaviour of the method.'
-# fig = matplotlib.figure.Figure(figsize=(18,1))
-# fig = matplotlib.figure.Figure(figsize=(14,1))
-# fig = matplotlib.figure.Figure(figsize=(11,0.7))
-# ax = fig.add_subplot(111)
-# ax.axis('off')
-# ax.text(0.0, 0.0, intro_string, fontsize = 10,
-#         horizontalalignment='left', verticalalignment='bottom',
-#         transform=ax.transAxes)
-# canvas = FigureCanvasTkAgg(fig, master=topFrame)
-# canvas.get_tk_widget().pack()
-# tk.Label(topFrame, relief='raised', borderwidth=0.1, bg='black').pack(fill='x')
-
-# font0 = ('times', 18, 'italic')
-# width0 = 150
-# intro_string = u'Saccade parameter \u03b7 ' \
-#                'represents the maximum attainable peak angular velocity of any saccade.\n' \
-#               u'Saccade parameter \u03b7 and c' \
-#                'determines waveform of a saccade.\n' \
-#               u'Denosing parameter \u03b1 ' \
-#                'controls the sparsity of the velocity data.\n' \
-#               u'Denosing parameter \u03b2 ' \
-#                'refines the velocity profile of saccades.'
-# intro = tk.Label(topFrame, text=u'Saccade parameter \u03b7 represents the maximum attainable peak angular velocity of any saccade.', font=font0, anchor='w', width=width0)
-# intro.pack()
-# intro = tk.Label(topFrame, text=u'Saccade parameter c and \u03b7 together determine waveform of a saccade.', font=font0, anchor='w', width=width0)
-# intro.pack()
-# intro = tk.Label(topFrame, text=u'Denosing parameter \u03b1 controls the sparsity of the velocity data.', font=font0, anchor='w', width=width0)
-# intro.pack()
-# intro = tk.Label(topFrame, text=u'Denosing parameter \u03b2 refines the velocity profile of saccades.', font=font0, anchor='w', width=width0)
-# intro.pack()
-
 ### Left frame: plots ###
 T = np.arange(-0.15, 0.15+1.0/Fs, 1.0/Fs)
 waveform, velocity, peak_velocity = saccade_model(T, 600, 6, 10)
