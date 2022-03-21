@@ -13,6 +13,7 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 from saccade_model import saccade_model
+import denoise_algo
 
 
 NIT_MAX = 20                        # max iteration for denoising algorithm
@@ -67,7 +68,7 @@ def make_saccade(event):
     sacc_amp = amplitude.get()
     sacc_sigma = sigma.get()
     sacc_n = int(n.get())
-    global t, s, y, w, N, x, e, D1, D3, I, prev_alpha, prev_beta, sacc_dur
+    global t, s, y, w, x, prev_alpha, prev_beta, sacc_dur
 
     # generate clean saccade(s)
     waveform, velocity, peak_velocity = saccade_model(
@@ -89,12 +90,6 @@ def make_saccade(event):
     y = s + w * sacc_sigma
     # update denoised data x
     x = y
-    # update difference operator
-    if len(e) != N:
-        e = np.ones(N)
-        D1 = sparse.spdiags([-e, e], [0, 1], N-1, N)
-        D3 = sparse.spdiags([-e, 3*e, -3*e, e], [0, 1, 2, 3], N-3, N)
-        I = sparse.spdiags(e, 0, N, N)
     # calculate velocity (derivative)
     sd1 = diff(s)
     yd1 = diff(y)
@@ -138,12 +133,9 @@ def denoise(Nit):
     beta = lam2.get()
     global x
 
-    # run algorithm (check paper for detail)
-    for i in range(Nit):
-        Lam1 = sparse.spdiags(alpha/psi(np.diff(x)), 0, N-1, N-1)
-        Lam3 = sparse.spdiags(beta/psi(np.diff(x, 3)), 0, N-3, N-3)
-        temp = I + ((D1.T).dot(Lam1)).dot(D1) + ((D3.T).dot(Lam3)).dot(D3)
-        x = slin.spsolve(temp, y)
+    # denosing
+    x = denoise_algo.cgtv(y, alpha, beta, Nit, x)
+    
     xd1 = diff(x)
     line1_d.set_data(t, x)
     line2_d.set_data(t, xd1)
@@ -171,7 +163,7 @@ def new_noise():
     """
     global w, y, prev_alpha, prev_beta
     sacc_sigma = sigma.get()
-    w = np.random.randn(N)
+    w = np.random.randn(len(s))
     y = s + w * sacc_sigma
 
     yd1 = diff(y)
@@ -274,12 +266,7 @@ title.pack(side='top')
 ### Left frame: plots ###
 T = np.arange(-0.15, 0.15+1.0/Fs, 1.0/Fs)
 waveform, velocity, peak_velocity = saccade_model(T, 600, 6, 10)
-w = np.array([0])  # white noise? TODO
-N = len(T)
-e = np.ones(N)
-D1 = sparse.spdiags([-e, e], [0, 1], N-1, N)
-D3 = sparse.spdiags([-e, 3*e, -3*e, e], [0, 1, 2, 3], N-3, N)
-I = sparse.spdiags(e, 0, N, N)
+w = np.array([0])  # white noise
 
 # Position plot
 fig = matplotlib.figure.Figure()
