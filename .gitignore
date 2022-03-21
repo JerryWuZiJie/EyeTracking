@@ -130,3 +130,6 @@ dmypy.json
 
 # test file
 test.py
+
+# matlab format data
+*.mat
