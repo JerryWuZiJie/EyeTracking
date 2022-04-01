@@ -12,7 +12,7 @@ def cgtv(noisy_signal, alpha, beta, Nit, denoised_signal=None):
     """
     run the algorithm
 
-    noisy_signal: original signal
+    noisy_signal: original position signal
     alpha: denoising parameter
     beta: denoising parameter
     Nit: number of iteration
