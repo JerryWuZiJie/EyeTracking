@@ -18,6 +18,7 @@ import denoise_algo
 #
 Fs = 500                        # sampling rate
 INITIAL_FIT_VALS = [600, 8]     # intial guess value for curve_fit
+ITER_N = 20                     # number of iteration times
 
 # parameter used for simulation data
 SIMULATION = True               # whether it's a simulation)
@@ -108,10 +109,8 @@ for i in range(len(est_v_smooth)):
             detection_array[i-dur_counter:i] = 0
             est_total_sac -= 1
         dur_counter = 0
-# process the array
+# process the array to remove short fixation
 fix_counter = 0
-est_total_dur = 0
-est_total_amp = 0
 for i in range(len(detection_array)):
     if detection_array[i] == 0:
         fix_counter += 1
@@ -120,18 +119,15 @@ for i in range(len(detection_array)):
             # fixation between two saccades is short, count it as saccades
             detection_array[i-fix_counter:i] = 1
             est_total_sac -= 1  # 2 merge to 1
-            # increase duration
-            est_total_dur += fix_counter
-            # increase amplitude
-            est_total_amp += sum(np.abs(est_v_smooth[i-fix_counter:i]))
         fix_counter = 0
-        est_total_dur += 1
-        est_total_amp += np.abs(est_v_smooth[i])
-# get standard deviation for each fixation, this will be the signma
+# get standard deviation for all fixations, this will be the signma
+# TODO subtract average for each of saccades
 est_sigma = scipy.stats.tstd(noisy_p[detection_array == 0])
-# get avg_amp and avg_dur
+# get average duration
+est_total_dur = (detection_array == 1).sum()
 est_dur = est_total_dur / est_total_sac / Fs
-# TODO: seems wrong, check saccade_cgtv 83 amp_avg?
+# get average amplitude TODO: seems wrong, check saccade_cgtv 83 amp_avg?
+est_total_amp = np.abs(est_v_smooth[detection_array == 1]).sum()
 est_amp = est_total_amp / est_total_sac / Fs
 # calculate sigma using array based on Fs, avg_amp, avg_dur, and sigma
 if Fs <= 500:
@@ -142,7 +138,7 @@ else:
     beta = (0.0016*Fs + 3.2) * np.sqrt(est_amp) * np.exp(5 * est_dur)
 
 # denoise signal
-denoised_signal = denoise_algo.cgtv(noisy_p, alpha, beta, 50)
+denoised_signal = denoise_algo.cgtv(noisy_p, alpha, beta, ITER_N)
 
 
 # create figure
