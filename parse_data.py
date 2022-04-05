@@ -13,7 +13,7 @@ import scipy.signal
 import scipy.optimize
 import scipy.stats
 
-import denoise_algo
+import algorithms
 
 #
 Fs = 500                        # sampling rate
@@ -138,7 +138,9 @@ else:
     beta = (0.0016*Fs + 3.2) * np.sqrt(est_amp) * np.exp(5 * est_dur)
 
 # denoise signal
-denoised_signal = denoise_algo.cgtv(noisy_p, alpha, beta, ITER_N)
+denoised_signal = algorithms.cgtv(noisy_p, alpha, beta, ITER_N)
+
+# TODO: VT algorithm
 
 
 # create figure
