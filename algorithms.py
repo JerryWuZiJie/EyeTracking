@@ -1,11 +1,112 @@
 from scipy import sparse
 from scipy.sparse import linalg as slin
+import scipy.signal
 import numpy as np
+
+
+def diff(x, Fs):
+    """
+    central differenece filter
+    Calculate derivative.
+    
+    @param x: input signal
+    @param Fs: sampling frequency
+    
+    @ret y: derivative signal
+    """
+    h = np.array([0.5, 0, -0.5])
+    y = scipy.signal.convolve(x, Fs*h, mode='same')
+    y[0] = 0
+    y[-1] = 0
+    return y
+
+
+def v_denoise(position, Fs, movavg_n=10):
+    """
+    turn position into velocity and smooth out
+    maybe use LPF in the future
+    
+    @param position: position signal
+    @param Fs: sampling frequency
+
+    @ret vel_smooth: smoothed velocity signal
+    """
+    
+    # get velocity by difference filter
+    vel = diff(position, Fs)
+    # use moving average to smooth the data (could also use low pass filter)
+    vel_smooth = np.convolve(vel, np.ones(movavg_n), 'same') / movavg_n
+    
+    return vel_smooth
+
+
+def VT(position, Fs, v_th, dur_th, fix_th, movavg_n=10):
+    """
+    Velocity Threshold algorithm
+
+    @param position: position signal
+    @param Fs: sampling frequency
+    @param v_th: velocity threshold in unit of samples
+    @param dur_th: duration threshold in unit of seconds
+    @param fix_th: fixation threshold in unit of seconds
+    @param movavg_n: moving average number in units of samples
+    
+    @ret detection_array: array of 1s and 0s, 1 for saccades and 0 for fixations
+    @ret total_sacs: total saccades detected
+    """
+
+    # get smooth velocity signal
+    vel_smooth = v_denoise(position, Fs, movavg_n)
+    # use velocity and duration threshold to get array of 1s and 0s
+    # 1 for saccade, 0 for fixation
+    detection_array = np.zeros_like(vel_smooth)
+    dur_counter = 0
+    total_sacs = 0
+    dur_th_n = int(dur_th * Fs)  # in unit of samples
+    for i in range(len(vel_smooth)):
+        if np.abs(vel_smooth[i]) >= v_th:
+            # if greater than threshold, it's a saccade
+            detection_array[i] = 1
+            if dur_counter == 0:
+                # add one more saccade when first vt is exceeded
+                total_sacs += 1
+            dur_counter += 1
+        else:
+            detection_array[i] = 0
+            if dur_counter > 0 and dur_counter < dur_th_n:
+                # if duration is less than threshold, it's a fixation
+                detection_array[i-dur_counter:i] = 0
+                total_sacs -= 1
+            dur_counter = 0
+    # remove short fixation if it's less than fixation threshold
+    fix_counter = 0
+    fix_th_n = int(fix_th * Fs)  # in unit of samples
+    for i in range(len(detection_array)):
+        if detection_array[i] == 0:
+            fix_counter += 1
+        else:
+            if fix_counter > 0 and fix_counter <= fix_th_n:
+                # fixation between two saccades is short, count it as saccades
+                detection_array[i-fix_counter:i] = 1
+                total_sacs -= 1  # 2 saccades merge to 1
+            fix_counter = 0
+            
+    return detection_array, total_sacs
+
+
+def main_squence(x_amp, eta, c):
+    """
+    formula for main sequence
+
+    xdata: input
+    V = eta*(1-e^(-A/c))
+    """
+
+    return eta * (1-np.exp(-x_amp/c))
 
 
 EPS = 1E-10                # smoothed penalty function
 def psi(x): return np.sqrt(x**2 + EPS)
-
 
 
 def cgtv(noisy_signal, alpha, beta, Nit, denoised_signal=None):
