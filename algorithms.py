@@ -21,13 +21,14 @@ def diff(x, Fs):
     return y
 
 
-def v_denoise(position, Fs, movavg_n=10):
+def v_denoise(position, Fs, movavg=0.02):
     """
     turn position into velocity and smooth out
     maybe use LPF in the future
     
     @param position: position signal
     @param Fs: sampling frequency
+    @param movavg: moving average in units of seconds
 
     @ret vel_smooth: smoothed velocity signal
     """
@@ -35,12 +36,13 @@ def v_denoise(position, Fs, movavg_n=10):
     # get velocity by difference filter
     vel = diff(position, Fs)
     # use moving average to smooth the data (could also use low pass filter)
-    vel_smooth = np.convolve(vel, np.ones(movavg_n), 'same') / movavg_n
+    movavg = int(movavg * Fs)
+    vel_smooth = np.convolve(vel, np.ones(movavg), 'same') / movavg
     
     return vel_smooth
 
 
-def VT(position, Fs, v_th, dur_th, fix_th, movavg_n=10):
+def VT(position, Fs, v_th, dur_th, fix_th, movavg=0.02):
     """
     Velocity Threshold algorithm
 
@@ -49,14 +51,14 @@ def VT(position, Fs, v_th, dur_th, fix_th, movavg_n=10):
     @param v_th: velocity threshold in unit of samples
     @param dur_th: duration threshold in unit of seconds
     @param fix_th: fixation threshold in unit of seconds
-    @param movavg_n: moving average number in units of samples
+    @param movavg_n: moving average in units of seconds
     
     @ret detection_array: array of 1s and 0s, 1 for saccades and 0 for fixations
     @ret total_sacs: total saccades detected
     """
 
     # get smooth velocity signal
-    vel_smooth = v_denoise(position, Fs, movavg_n)
+    vel_smooth = v_denoise(position, Fs, movavg)
     # use velocity and duration threshold to get array of 1s and 0s
     # 1 for saccade, 0 for fixation
     detection_array = np.zeros_like(vel_smooth)

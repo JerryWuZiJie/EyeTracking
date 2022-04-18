@@ -24,7 +24,7 @@ SIMULATION = True               # whether it's a simulation)
 SIGMA = 0.1                     # noise sigma for test data (TODO)
 
 # parameter used for estimation of sigma, amplitude, and duration
-MOVAVG_FS = 10
+MOVAVG = 0.02                # move average filter (s)
 V_TH = 10                       # velocity threshold
 DUR_TH = 0.024                  # duration threshold (s)
 FIX_TH = 0.04                   # fixation threshold (s)
@@ -37,7 +37,7 @@ def add_noise(signal, sigma):
     """
     add noise to signal
     """
-    w = np.random.randn(*signal_data.shape)
+    w = np.random.randn(*signal.shape)
     return signal + w * sigma
 
 
@@ -62,7 +62,7 @@ else:
 ### calculate coefficient alpha and beta ###
 # run VT algorithm to get detection array, 1 for saccade and 0 for fixation
 est_detect_array, est_total_sac = algorithms.VT(
-    noisy_p, Fs, V_TH, DUR_TH, FIX_TH)
+    noisy_p, Fs, V_TH, DUR_TH, FIX_TH, MOVAVG)
 # get standard deviation for all fixations, this will be the signma
 # subtract average for each fixation
 fix_len = 0  # len of each fixation
@@ -94,7 +94,7 @@ denoised_signal = algorithms.cgtv(noisy_p, alpha, beta, ITER_N)
 
 # run VT algorithm on smooth out signal
 detection_array, total_sacs = algorithms.VT(
-    denoised_signal, Fs, V_TH, DUR_TH, FIX_TH)
+    denoised_signal, Fs, V_TH, DUR_TH, FIX_TH, MOVAVG)
 
 # create figure
 fig = plt.figure()
