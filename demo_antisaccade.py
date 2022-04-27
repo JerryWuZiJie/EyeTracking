@@ -12,7 +12,7 @@ assert 1 <= PATIENT_NUM <= 21
 patient_num = PATIENT_NUM - 1
 
 # read in data
-data = scipy.io.loadmat("antisaccadeContPatient.mat")
+data = scipy.io.loadmat("data/antisaccadeContPatient.mat")
 
 # patient data
 sacc_patient = data['Dcell']

@@ -12,7 +12,7 @@ Fs = 500        # sampling rate
 np.random.seed(0)
 
 ### load in data from .mat file ###
-data = scipy.io.loadmat("simulation_type1.mat")
+data = scipy.io.loadmat("data/simulation_type1.mat")
 # print(data.keys())  # show what data is accessible
 duration_data = data["DUR"][:, 0]
 number_of_sacc = data["NSAC"][:, 0]
