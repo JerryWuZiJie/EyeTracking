@@ -13,7 +13,7 @@ import matplotlib
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from PIL import ImageTk, Image
 from saccade_model import saccade_model
-import denoise_algo
+import algorithms
 
 
 NIT_MAX = 20                        # max iteration for denoising algorithm
@@ -134,7 +134,7 @@ def denoise(Nit):
     global x
 
     # denosing
-    x = denoise_algo.cgtv(y, alpha, beta, Nit, x)
+    x = algorithms.cgtv(y, alpha, beta, Nit, x)
     
     xd1 = diff(x)
     line1_d.set_data(t, x)
