@@ -69,3 +69,18 @@ def process_data(Fs, original, V_TH=10, DUR_TH=0.024, FIX_TH=0.04, MOVAVG=0.02, 
         denoised_signal, Fs, V_TH, DUR_TH, FIX_TH, MOVAVG)
 
     return denoised_signal, detection_array, total_sacs
+
+
+def sacc_start_end(detection_array):
+    """
+    get the start and end of each saccade
+
+    @param detection_array: detection array from process_data()
+    
+    @return: start (1) and end (-1) of each saccade
+    """
+
+    # shift detection array right by 1 unit
+    detection_array2 = np.hstack((detection_array[0], detection_array[:-1]))
+    result = detection_array - detection_array2
+    return result

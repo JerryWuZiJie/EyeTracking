@@ -30,8 +30,9 @@ noisy_p = signal_data + w * SIGMA
 denoised_signal, detection_array, total_sacs = process_data.process_data(
     Fs, noisy_p)
 
+vertical_line = process_data.sacc_start_end(detection_array)
 
-# create figure
+### create figure ###
 fig = plt.figure()
 ax0 = fig.add_subplot(111)
 ax0.set_ylabel("Position (deg)")
@@ -40,6 +41,12 @@ ax0.set_title('CGTV: %d saccades detected' % total_sacs)
 
 # plot detection
 ax0.plot(time_data, detection_array*10, label="detection")
+
+# plot detection start and end
+for x in time_data[vertical_line == 1]:
+    ax0.axvline(x=x, color='gray', alpha=0.5)
+for x in time_data[vertical_line == -1]:
+    ax0.axvline(x=x, color='gray', alpha=0.5, ls='--')
 
 # plot original signal
 ax0.plot(time_data, noisy_p, label="original signal")
