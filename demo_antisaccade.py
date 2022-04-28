@@ -65,12 +65,31 @@ def open_plot(event=None):
 
 
 def change_data_disp():
+    """
+    change the display patient info
+    """
+    
     if patient_group:
         patient_label.configure(
             text="%s group: patient number: %d" % ('concussion', patient_num))
     else:
         patient_label.configure(
             text="%s group: patient number: %d" % ('control', patient_num))
+
+
+def update_patient():
+    """
+    update patient
+    """
+    
+    # update dropdown menu select num
+    patient_option_var.set(str(patient_num))
+    # update patient display info
+    change_data_disp()
+    # calculate new data
+    update_data()
+    # plot new data
+    update_plot()
 
 
 def left_key(event=None):
@@ -86,9 +105,7 @@ def left_key(event=None):
     if patient_num < PATIENT_NUM_MIN:
         patient_num = PATIENT_NUM_MIN
     else:
-        change_data_disp()
-        update_data()
-        update_plot()
+        update_patient()
 
 
 def right_key(event=None):
@@ -104,9 +121,33 @@ def right_key(event=None):
     if patient_num > PATIENT_NUM_MAX:
         patient_num = PATIENT_NUM_MAX
     else:
-        change_data_disp()
-        update_data()
-        update_plot()
+        update_patient()
+
+
+def change_patient(patient_num_str):
+    """
+    change patient when dropdown menu is changed
+    """
+
+    global patient_num
+    patient_num = int(patient_num_str)
+    update_patient()
+
+
+def change_group():
+    """
+    change the group when button pressed
+    """
+
+    global patient_group
+    if patient_group_but['relief'] == 'sunken':
+        patient_group_but['relief'] = 'raised'
+        patient_group = 0
+        update_patient()
+    else:
+        patient_group_but['relief'] = 'sunken'
+        patient_group = 1
+        update_patient()
 
 
 def update_data():
@@ -185,6 +226,11 @@ open_plot_frame = tk.Frame(bottom_frame)
 ### top frame widgets ###
 patient_label = tk.Label(top_frame, text="", font=('Arial', 20))
 change_data_disp()  # change the display patient info
+patient_group_but = tk.Button(top_frame, text="Concussion Group", command=change_group)
+patient_option_var = tk.StringVar(root, '1')
+patient_option = tk.OptionMenu(top_frame, patient_option_var,
+                               *[str(i+1) for i in range(PATIENT_NUM_MAX)],
+                               command=change_patient)
 
 ### Middle frame: plots ###
 # tk integer to control visibility of plot
@@ -234,7 +280,9 @@ open_plot_frame.pack()
 
 ### place other widgets ###
 # top frame
-patient_label.pack()
+patient_label.pack(side=tk.LEFT)
+patient_group_but.pack(side=tk.LEFT)
+patient_option.pack(side=tk.LEFT)
 # bottom frame: tools
 left_but.pack(side=tk.LEFT)
 for but in display_but:
