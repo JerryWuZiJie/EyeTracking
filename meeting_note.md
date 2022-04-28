@@ -12,6 +12,6 @@
 - Getting some anti-saccades data
 
 4/18 MeetingNote
-- [] seperate parse data and plot data
-- [] create file for read in sample data and anti-saccade data
+- [x] seperate parse data and plot data
+- [x] create file for read in sample data and anti-saccade data
 - [] turn moving average into low pass filter
