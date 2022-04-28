@@ -11,6 +11,19 @@ PATIENT_NUM_MIN = 1
 PATIENT_NUM_MAX = 21
 
 
+def change_data_disp():
+    """
+    change the display patient info
+    """
+
+    if patient_group:
+        patient_label.configure(
+            text="%s group: patient number: %d" % ('concussion', patient_num))
+    else:
+        patient_label.configure(
+            text="%s group: patient number: %d" % ('control', patient_num))
+
+
 def create_plot(fig):
     """
     plot the data to figure
@@ -64,24 +77,67 @@ def open_plot(event=None):
     plt.show()
 
 
-def change_data_disp():
+def update_data():
     """
-    change the display patient info
+    update the data to corresponding group and patient
     """
-    
+
+    global total_sacs, plot_data_dict, vertical_line
+    # patient data
+    sacc_patient = data['Dcell']
+    # target data
+    sacc_target = data['Tcell']
+
     if patient_group:
-        patient_label.configure(
-            text="%s group: patient number: %d" % ('concussion', patient_num))
+        # patient group
+        sacc_patient_group = sacc_patient[0, 1]
+        sacc_target_group = sacc_target[0, 1]
     else:
-        patient_label.configure(
-            text="%s group: patient number: %d" % ('control', patient_num))
+        # control group
+        sacc_patient_group = sacc_patient[0, 0]
+        sacc_target_group = sacc_target[0, 0]
+
+    # actual data
+    sacc_patient_data = sacc_patient_group[patient_num-1, 0]
+    sacc_target_data = sacc_target_group[patient_num-1, 0]
+
+    ### patient data ###
+    # horizontal eye movement
+    horizontal_data = sacc_patient_data[:, 0]
+    # # vertical eye movement, don't care
+    # _ = sacc_patient_data[:, 1]
+    # time data
+    time_data = sacc_patient_data[:, 2]
+
+    ### target data ###
+    # horizontal eye movement
+    horizontal_target = sacc_target_data[:, 0]
+    # # vertical eye movement, don't care
+    # _ = sacc_target_data[:, 1]
+
+    # process data using CGTV and VT algorithm
+    denoised_signal, detection_array, total_sacs = process_data.process_data(
+        Fs, horizontal_data)
+
+    vertical_line = process_data.sacc_start_end(detection_array)
+
+    # list of data to be plotted
+    plot_data_dict = {}
+    plot_data_dict['detection'] = {'visible_var': tk_line0,
+                                   'params': [time_data, detection_array, 'b']}
+    plot_data_dict['original signal'] = {'visible_var': tk_line1,
+                                         'params': [time_data, horizontal_data, 'r']}
+    plot_data_dict['denoised signal'] = {'visible_var': tk_line2,
+                                         'params': [time_data, denoised_signal, 'g']}
+    plot_data_dict['target'] = {'visible_var': tk_line3,
+                                'params': [time_data, horizontal_target, 'orange']}
 
 
 def update_patient():
     """
-    update patient
+    update all
     """
-    
+
     # update dropdown menu select num
     patient_option_var.set(str(patient_num))
     # update patient display info
@@ -130,8 +186,9 @@ def change_patient(patient_num_str):
     """
 
     global patient_num
-    patient_num = int(patient_num_str)
-    update_patient()
+    if patient_num != int(patient_num_str):
+        patient_num = int(patient_num_str)
+        update_patient()
 
 
 def change_group():
@@ -150,94 +207,49 @@ def change_group():
         update_patient()
 
 
-def update_data():
-    """
-    update the data to corresponding group and patient
-    """
-
-    global total_sacs, plot_data_dict, vertical_line
-    # patient data
-    sacc_patient = data['Dcell']
-    # target data
-    sacc_target = data['Tcell']
-
-    if patient_group:
-        # patient group
-        sacc_patient_group = sacc_patient[0, 1]
-        sacc_target_group = sacc_target[0, 1]
-    else:
-        # control group
-        sacc_patient_group = sacc_patient[0, 0]
-        sacc_target_group = sacc_target[0, 0]
-
-    # actual data
-    sacc_patient_data = sacc_patient_group[patient_num-1, 0]
-    sacc_target_data = sacc_target_group[patient_num-1, 0]
-
-    ### patient data ###
-    # horizontal eye movement
-    horizontal_data = sacc_patient_data[:, 0]
-    # # vertical eye movement, don't care
-    # _ = sacc_patient_data[:, 1]
-    # time data
-    time_data = sacc_patient_data[:, 2]
-
-    ### target data ###
-    # horizontal eye movement
-    horizontal_target = sacc_target_data[:, 0]
-    # # vertical eye movement, don't care
-    # _ = sacc_target_data[:, 1]
-
-    # process data using CGTV and VT algorithm
-    denoised_signal, detection_array, total_sacs = process_data.process_data(
-        Fs, horizontal_data)
-
-    vertical_line = process_data.sacc_start_end(detection_array)
-
-    # list of data to be plotted
-    plot_data_dict = {}
-    plot_data_dict['detection'] = {'visible_var': tk_int1,
-                                   'params': [time_data, detection_array, 'b']}
-    plot_data_dict['original signal'] = {'visible_var': tk_int2,
-                                         'params': [time_data, horizontal_data, 'r']}
-    plot_data_dict['denoised signal'] = {'visible_var': tk_int3,
-                                         'params': [time_data, denoised_signal, 'g']}
-    plot_data_dict['target'] = {'visible_var': tk_int4,
-                                'params': [time_data, horizontal_target, 'orange']}
-
-
+# first patient info
 patient_group = 0               # 0 for control group, 1 concussion group
 patient_num = 1                 # between 1 and 21
-assert 1 <= patient_num <= 21
 
 # read in data
 data = scipy.io.loadmat("data/antisaccadeContPatient.mat")
 Fs = 500  # TODO: need to calculate sampling frequency from data
 
-### create GUI ###
+
+### create tkinter GUI ###
 root = tk.Tk()
 root.title('A Parametric Saccade Model')
+
+# bind left right keys to switch patient
+root.bind("<Left>", left_key)
+root.bind("<Right>", right_key)
+
 # create frames
 top_frame = tk.Frame(root)
 bottom_frame = tk.Frame(root)
 tools_frame = tk.Frame(bottom_frame)
 open_plot_frame = tk.Frame(bottom_frame)
 
+
 ### top frame widgets ###
 patient_label = tk.Label(top_frame, text="", font=('Arial', 20))
-change_data_disp()  # change the display patient info
-patient_group_but = tk.Button(top_frame, text="Concussion Group", command=change_group)
+change_data_disp()  # change the display patient info for patient_label
+
+patient_group_but = tk.Button(
+    top_frame, text="Concussion Group", command=change_group)
+
 patient_option_var = tk.StringVar(root, '1')
 patient_option = tk.OptionMenu(top_frame, patient_option_var,
                                *[str(i+1) for i in range(PATIENT_NUM_MAX)],
                                command=change_patient)
 
+
 ### Middle frame: plots ###
 # tk integer to control visibility of plot
-tk_int1 = tk.IntVar(value=1)
-tk_int2 = tk.IntVar(value=1)
-tk_int3 = tk.IntVar(value=1)
-tk_int4 = tk.IntVar(value=1)
+tk_line0 = tk.IntVar(value=1)
+tk_line1 = tk.IntVar(value=1)
+tk_line2 = tk.IntVar(value=1)
+tk_line3 = tk.IntVar(value=1)
 # process data
 update_data()
 
@@ -246,19 +258,20 @@ fig = matplotlib.figure.Figure(figsize=(9, 4))
 fig.subplots_adjust(wspace=0.3)
 fig.subplots_adjust(left=0.07, right=0.95, bottom=0.15)
 
-
+# plot to figure
 create_plot(fig)
 
-# canvas for matplotlib plotting
+# canvas widget for matplotlib and tkinter
 canvas = FigureCanvasTkAgg(fig, master=root)
 canvas_widget = canvas.get_tk_widget()
 
+
 ### Bottom frame widgets ###
-root.bind("<Left>", left_key)
-root.bind("<Right>", right_key)
+# left right button to swtich patient
 left_but = tk.Button(tools_frame, text='<-', command=left_key)
 right_but = tk.Button(tools_frame, text='->', command=right_key)
 
+# checkbuttons to show/hide certain data
 display_but = []
 for key in plot_data_dict:
     but = tk.Checkbutton(tools_frame, text=key,
@@ -268,6 +281,7 @@ for key in plot_data_dict:
                          command=update_plot)
     display_but.append(but)
 
+# button to open plot in separate matplotlib window
 open_plot_but = tk.Button(open_plot_frame, text='open plot', command=open_plot)
 
 
