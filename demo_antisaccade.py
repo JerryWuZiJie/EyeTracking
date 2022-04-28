@@ -32,7 +32,7 @@ def create_plot(fig):
         if plot_data_dict[data_key]['visible_var'].get():
             ax0.plot(*plot_data_dict[data_key]['params'], label=data_key)
 
-    # TODO: don't plot for now
+    # This enables ploting vertical line, but doesn't fit with the work flow
     # # plot detection start and end
     # for x in time_data[vertical_line == 1]:
     #     ax0.axvline(x=x, color='gray', alpha=0.5)
@@ -155,7 +155,7 @@ def update_data():
     update the data to corresponding group and patient
     """
 
-    global total_sacs, plot_data_dict
+    global total_sacs, plot_data_dict, vertical_line
     # patient data
     sacc_patient = data['Dcell']
     # target data
