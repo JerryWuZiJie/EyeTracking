@@ -9,7 +9,7 @@ import scipy.stats
 import algorithms
 
 
-def process_data(Fs, original, V_TH=10, DUR_TH=0.024, FIX_TH=0.04, MOVAVG=0.02, ITER_N=20):
+def process_data(time_data, original, V_TH=10, DUR_TH=0.024, FIX_TH=0.04, MOVAVG=0.02, ITER_N=20):
     """
     apply CGTV algorithms to original data
 
@@ -20,9 +20,9 @@ def process_data(Fs, original, V_TH=10, DUR_TH=0.024, FIX_TH=0.04, MOVAVG=0.02, 
         INITIAL_FIT_VALS = [600, 8]     # intial guess value for curve_fit
         check saccade_cgtv.m for reference
 
-    @param Fs: sampling rate
+    @param time_data: time data (s)
     @param original: original signal
-    @param V_TH: velocity threshold (deg/s) TODO: rad/s?
+    @param V_TH: velocity threshold (deg/s)
     @param DUR_TH: duration threshold (s)
     @param FIX_TH: fixation threshold (s)
     @param MOVAVG: move average filter (s)
@@ -31,7 +31,10 @@ def process_data(Fs, original, V_TH=10, DUR_TH=0.024, FIX_TH=0.04, MOVAVG=0.02, 
     @return: denoised signal, detection array, total saccades
     """
 
-    ### calculate coefficient alpha and beta ###
+    # calculate Fs from time data
+    time_diff = np.diff(time_data)
+    time_diff = sum(time_diff)/len(time_diff)
+    Fs = round(1/time_diff)
     # run VT algorithm to get detection array, 1 for saccade and 0 for fixation
     est_detect_array, est_total_sac = algorithms.VT(
         original, Fs, V_TH, DUR_TH, FIX_TH, MOVAVG)
@@ -49,9 +52,10 @@ def process_data(Fs, original, V_TH=10, DUR_TH=0.024, FIX_TH=0.04, MOVAVG=0.02, 
     # get average duration
     est_total_dur = (est_detect_array == 1).sum()
     est_dur = est_total_dur / est_total_sac / Fs
-    # get average amplitude TODO: seems wrong, check saccade_cgtv 83 amp_avg?
+    # get average amplitude
     est_v_smooth = algorithms.v_denoise(original, Fs)
     est_total_amp = np.abs(est_v_smooth[est_detect_array == 1]).sum()
+    # comment: divide Fs doesn't make sense, but lower error
     est_amp = est_total_amp / est_total_sac / Fs
     # calculate sigma using equation from the paper
     if Fs <= 500:
@@ -76,7 +80,7 @@ def sacc_start_end(detection_array):
     get the start and end of each saccade
 
     @param detection_array: detection array from process_data()
-    
+
     @return: start (1) and end (-1) of each saccade
     """
 

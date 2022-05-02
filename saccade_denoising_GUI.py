@@ -103,7 +103,7 @@ def make_saccade(event):
         p2.set_ylim((-V_UPPER, V_UPPER))
     else:
         p2.set_ylim((V_LOWER, V_UPPER))
-    line1_c.set_data(t, s)  # TODO: how to determine if drawing this?
+    line1_c.set_data(t, s)
     line2_c.set_data(t, sd1)
     fig.canvas.draw()
 
@@ -276,7 +276,7 @@ line1_d, = p1.plot(T, waveform, color='r', linewidth=1.5, label='Denoised')
 line1_c, = p1.plot(T, waveform, color='b', alpha=0,
                    linewidth=1.5)  # clean data
 p1.set_xlim((-0.15, 0.15))
-p1.set_ylim((-1, 30))  # TODO: max_amp
+p1.set_ylim((-1, 30))
 p1.set_ylabel('Position (deg)')
 p1.set_title('Simulated Eye Movement Data')
 p1.legend(loc='upper left')
@@ -334,7 +334,7 @@ paramLabel_sigma = tk.Label(rightFrame, text=u'\u03c3', font=FONT2)
 paramLabel_sigma.grid(row=6, column=0, sticky='e')
 paramScale_sigma = tk.Scale(rightFrame, orient='horizontal', length=200,
                             variable=sigma, from_=0, to=1, resolution=0.02,
-                            command=make_saccade)  # TODO: change to new_noise?
+                            command=make_saccade)
 paramScale_sigma.grid(row=6, column=1, columnspan=3)
 paramScale_sigma.set(0.5)
 button_noise = tk.Button(rightFrame, text='Update noise',

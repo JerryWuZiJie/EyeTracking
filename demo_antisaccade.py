@@ -117,7 +117,7 @@ def update_data():
 
     # process data using CGTV and VT algorithm
     denoised_signal, detection_array, total_sacs = process_data.process_data(
-        Fs, horizontal_data)
+        time_data, horizontal_data)
 
     vertical_line = process_data.sacc_start_end(detection_array)
 

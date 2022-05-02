@@ -14,4 +14,3 @@
 4/18 MeetingNote
 - [x] seperate parse data and plot data
 - [x] create file for read in sample data and anti-saccade data
-- [] turn moving average into low pass filter

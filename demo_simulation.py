@@ -28,7 +28,7 @@ w = np.random.randn(*signal_data.shape)
 noisy_p = signal_data + w * SIGMA
 
 denoised_signal, detection_array, total_sacs = process_data.process_data(
-    Fs, noisy_p)
+    time_data, noisy_p)
 
 vertical_line = process_data.sacc_start_end(detection_array)
 
