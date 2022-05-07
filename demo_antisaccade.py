@@ -191,18 +191,16 @@ def change_patient(patient_num_str):
         update_patient()
 
 
-def change_group():
+def change_group(patient_group_str):
     """
     change the group when button pressed
     """
 
     global patient_group
-    if patient_group_but['relief'] == 'sunken':
-        patient_group_but['relief'] = 'raised'
+    if patient_group_str == "Control Group" and patient_group == 1:
         patient_group = 0
         update_patient()
-    else:
-        patient_group_but['relief'] = 'sunken'
+    elif patient_group_str == "Concussion Group" and patient_group == 0:
         patient_group = 1
         update_patient()
 
@@ -235,8 +233,10 @@ open_plot_frame = tk.Frame(bottom_frame)
 patient_label = tk.Label(top_frame, text="", font=('Arial', 20))
 change_data_disp()  # change the display patient info for patient_label
 
-patient_group_but = tk.Button(
-    top_frame, text="Concussion Group", command=change_group)
+patient_group_var = tk.StringVar(root, "Control Group")
+patient_group_option = tk.OptionMenu(top_frame, patient_group_var,
+                                  "Control Group", "Concussion Group",
+                                  command=change_group)
 
 patient_option_var = tk.StringVar(root, '1')
 patient_option = tk.OptionMenu(top_frame, patient_option_var,
@@ -295,7 +295,7 @@ open_plot_frame.pack()
 ### place other widgets ###
 # top frame
 patient_label.pack(side=tk.LEFT)
-patient_group_but.pack(side=tk.LEFT)
+patient_group_option.pack(side=tk.LEFT)
 patient_option.pack(side=tk.LEFT)
 # bottom frame: tools
 left_but.pack(side=tk.LEFT)
