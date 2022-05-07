@@ -13,13 +13,6 @@ def process_data(time_data, original, V_TH=10, DUR_TH=0.024, FIX_TH=0.04, MOVAVG
     """
     apply CGTV algorithms to original data
 
-    FUTURE: plot main sequence
-        np.nonzero https://numpy.org/doc/stable/reference/generated/numpy.nonzero.html
-        scipy.optimize.curve_fit: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html
-        indexing: np.ix_(): https://stackoverflow.com/a/11393946/13720936
-        INITIAL_FIT_VALS = [600, 8]     # intial guess value for curve_fit
-        check saccade_cgtv.m for reference
-
     @param time_data: time data (s)
     @param original: original signal
     @param V_TH: velocity threshold (deg/s)

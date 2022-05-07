@@ -54,6 +54,5 @@ ax0.plot(time_data, noisy_p, label="original signal")
 # plot processed signal
 ax0.plot(time_data, denoised_signal, label="denoised signal")
 
-plt.plot()
 plt.legend()
 plt.show()
